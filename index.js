@@ -172,9 +172,11 @@ app.post("/api/img", async function (req, res) {
     }
 });
 function presentAndNotValidate(uname){
+    console.log("Unsuccessful",uname);
     User.findOneAndUpdate({ username:uname}, {absent:false, validated:false},(err,res)=>{if(err)console.log(err)});
 }
 function presentAndValidate(uname){
+    console.log("Successful", uname)
     User.findOneAndUpdate({username:uname}, {absent:false, validated:true},(err,res)=>{if(err)console.log(err)});
 }
 //==============///FaceRecognitionAPI=============
