@@ -10,14 +10,16 @@ function startInterval(labeledFaceDescriptors) {
   btnsave.style.display = "none";
   namefield.style.display = "none";
   imageView.style.display = "none";
-  setInterval(async () => {
-    const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6)
 
-    const canvas = document.createElement('canvas'); // create a canvas
-    const ctx = canvas.getContext('2d'); // get its context
-    canvas.width = vid.videoWidth; // set its size to the one of the video
-    canvas.height = vid.videoHeight;
-    ctx.drawImage(vid, 0, 0); // the video
+  const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6)
+
+  const canvas = document.createElement('canvas'); // create a canvas
+  const ctx = canvas.getContext('2d'); // get its context
+  canvas.width = vid.videoWidth; // set its size to the one of the video
+  canvas.height = vid.videoHeight;
+  ctx.drawImage(vid, 0, 0); // the video
+  
+  setInterval(async () => {
     var image = canvas.toDataURL("image/jpeg");
     const img = await faceapi.fetchImage(image)
     const detections = await faceapi.detectAllFaces(img).withFaceLandmarks().withFaceDescriptors()
@@ -36,7 +38,7 @@ function startInterval(labeledFaceDescriptors) {
     })
 
 
-  }, 6000);
+  }, Math.floor(Math.random() * 15000) + 5000);
 }
 
 async function loadLabeledImages() {
@@ -46,9 +48,6 @@ async function loadLabeledImages() {
     labels.map(async label => {
       const descriptions = []
       const img = await faceapi.fetchImage(localStorage.getItem("Image"))
-      console.log(localStorage.getItem("Image"))
-      console.log("=================================")
-      console.log(img)
       try {
         const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor()
         descriptions.push(detections.descriptor)

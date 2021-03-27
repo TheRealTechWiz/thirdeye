@@ -149,38 +149,48 @@ app.post("/api/img", async function (req, res) {
     // console.log("img",img);
     const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor()
     if (detections == undefined || detections.length == 0) {
-        presentAndNotValidate(username);
+        // presentAndNotValidate(username,"");
         return res.status(500).json({ "result": "error","detection":"face not clear. Try Again" });
     }
     else {
         // return res.status(200).json({ "result": "ok", "detection": "face detected" });
       const result = faceMatcher.findBestMatch(detections.descriptor)
       if (result.label == "unknown") {
-      presentAndNotValidate(username);
+    //   presentAndNotValidate(username,result.label);
       return res.status(401).json({ "result": "error", "detection": "Someone Else" }); 
       }
       else {
         if(result.label==username){ 
-            presentAndValidate(username)
+            // presentAndValidate(username)
             return res.status(200).json({ "result": "ok", "detection": result.label });
         }
         else {
-            presentAndNotValidate(username); 
+            // presentAndNotValidate(username,result.label); 
             return res.status(403).json({ "result": "error", "detection": "Name not verified" });
         }
       }
     }
 });
 function presentAndNotValidate(uname){
-    console.log("Unsuccessful",uname);
+    console.log("NotValidate","given name:",uname);
     User.findOneAndUpdate({ username:uname}, {absent:false, validated:false},(err,res)=>{if(err)console.log(err)});
 }
 function presentAndValidate(uname){
-    console.log("Successful", uname)
+    console.log("Validate","given name:",uname)
     User.findOneAndUpdate({username:uname}, {absent:false, validated:true},(err,res)=>{if(err)console.log(err)});
 }
 //==============///FaceRecognitionAPI=============
+//=================StatusChangeAPI================
 
+app.post("/api/statusChange",function(req,res){
+    console.log(typeof(req.body.valid),req.body.valid)
+    if(req.body.valid) presentAndValidate(req.body.username);
+    else presentAndNotValidate(req.body.username);
+    return res.status(200).json({ "result": "ok"});
+
+});
+
+//==============///StatusChangeAPI================
 
 //=================AllUsersAPI====================
 
@@ -192,6 +202,22 @@ app.post("/api/allUsers", function (req, res) {
 });
 
 //=============///AllUsersAPI=====================
+
+//================UserExistsAPI===================
+
+// app.post("/api/userExists",(req,res)=>{
+//     User.find({username:req.body.username}, function (err, User) {
+//         if (err) { return res.status(403).json({ "result": "error", "error": err.message });}
+//         else { 
+//             if(User.length==0)
+//             return res.status(403).json({ "result": "false", "user": User });
+//             else
+//             return res.status(200).json({ "result": "true", "user": User });
+//         }
+//     });
+// });
+
+//=============///UserExistAPI====================
 app.get("/", isLoggedIn, function (req, res) {
     res.render('face')
 });
