@@ -63,7 +63,7 @@ app.use(flash());
 
 // mongoose.connect("mongodb://localhost:27017/face_recognition", { useNewUrlParser: true, useUniJfiedTopology: true });
 mongoose.connect("mongodb+srv://admin:019s9pQgbH7WX40Z@cluster0-byaob.mongodb.net/face_recognition", { useNewUrlParser: true, useUnifiedTopology: true });
-
+mongoose.set('useFindAndModify', false);
 
 //==================MongooseSchemasAndModels=======================
 // var userSchema = new mongoose.Schema({ username: String, password: String });
@@ -147,21 +147,34 @@ app.post("/api/img", async function (req, res) {
     const username = req.body.username;
     const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor()
     if (detections == undefined || detections.length == 0) {
+        presentAndNotValidate(username);
         return res.status(500).json({ "result": "error","detection":"face not clear. Try Again" });
     }
     else {
         // return res.status(200).json({ "result": "ok", "detection": "face detected" });
       const result = faceMatcher.findBestMatch(detections.descriptor)
       if (result.label == "unknown") {
+      presentAndNotValidate(username);
       return res.status(401).json({ "result": "error", "detection": "Someone Else" }); 
       }
       else {
-        console.log(result.label,username); 
-        if(result.label==username) return res.status(200).json({ "result": "ok", "detection": result.label });
-        else  return res.status(403).json({ "result": "error", "detection": "Name not verified" });
+        if(result.label==username){ 
+            presentAndValidate(username)
+            return res.status(200).json({ "result": "ok", "detection": result.label });
+        }
+        else {
+            presentAndNotValidate(username); 
+            return res.status(403).json({ "result": "error", "detection": "Name not verified" });
+        }
       }
     }
 });
+function presentAndNotValidate(uname){
+    User.findOneAndUpdate({ username:uname}, {absent:false, validated:false},(err,res)=>{if(err)console.log(err)});
+}
+function presentAndValidate(uname){
+    User.findOneAndUpdate({username:uname}, {absent:false, validated:true},(err,res)=>{if(err)console.log(err)});
+}
 //==============///FaceRecognitionAPI=============
 
 
