@@ -145,8 +145,8 @@ app.get("/logout", function (req, res) {
 app.post("/api/img", async function (req, res) {
     const img = await canvas.loadImage(req.body.img);
     const username = req.body.username.toUpperCase();
-    console.log("username",username);
-    console.log("img",img);
+    // console.log("username",username);
+    // console.log("img",img);
     const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor()
     if (detections == undefined || detections.length == 0) {
         presentAndNotValidate(username);
