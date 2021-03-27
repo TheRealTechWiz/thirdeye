@@ -12,14 +12,15 @@ var flash = require('connect-flash');
 const tf = require('@tensorflow/tfjs-node')
 const faceapi = require('@vladmandic/face-api');
 var canvas = require('canvas');
+const LabeledDescriptions = [];
+let faceMatcher;
 
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
 
 const { Canvas, Image, ImageData } = canvas
 faceapi.env.monkeyPatch({ Canvas, Image, ImageData })
-const LabeledDescriptions = [];
-let faceMatcher;
+
 
 async function createMatcher() {
     await faceapi.nets.faceRecognitionNet.loadFromDisk('./views/models')
@@ -173,7 +174,6 @@ app.post("/api/allUsers", function (req, res) {
     });
 });
 
-
 //=============///AllUsersAPI=====================
 app.get("/", isLoggedIn, function (req, res) {
     res.render('face')
@@ -183,39 +183,66 @@ app.get("/dashboard", isLoggedIn, function (req, res) {
 });
 
 app.get("/all-students", isLoggedIn, function (req, res) {
-    res.render('all-dashboard-cards', {
-        data: [
-            { name: 'Tarun Jain', image: 'avatar.png', phone: '+917009950116' }, { name: 'Pratham Goyal', image: 'avatar.png', phone: '+919988034040' }, { name: 'Rajat Mittal', image: 'avatar.png', phone: '+919041950023' }, { name: 'Etendra Verma', image: 'avatar.png', phone: '+918601062439' }, { name: 'John Doe', image: 'avatar.png', phone: '+919999999999' }
-        ]
-    }
-    )
+      User.find({}, function (err, users) {
+        if (err) 
+        res.render('all-dashboard-cards', {data:[]});
+        else  
+        res.render('all-dashboard-cards', {data:users});
+    });
+    // res.render('all-dashboard-cards', {
+    //     data: 
+        // [
+        //     { name: 'Tarun Jain', image: 'avatar.png', phone: '+917009950116' }, { name: 'Pratham Goyal', image: 'avatar.png', phone: '+919988034040' }, { name: 'Rajat Mittal', image: 'avatar.png', phone: '+919041950023' }, { name: 'Etendra Verma', image: 'avatar.png', phone: '+918601062439' }, { name: 'John Doe', image: 'avatar.png', phone: '+919999999999' }
+        // ]
+    // }
+    // )
 });
 
 app.get("/submitted", isLoggedIn, function (req, res) {
-    res.render('all-dashboard-cards', {
-        data: [
-            { name: 'Tarun Jain', image: 'avatar.png', phone: '+917009950116' }, { name: 'Pratham Goyal', image: 'avatar.png', phone: '+919988034040' }
-        ]
-    }
-    )
+    User.find({validated :true, absent: false}, function (err, users) {
+        if (err) 
+        res.render('all-dashboard-cards', {data:[]});
+        else  
+        res.render('all-dashboard-cards', {data:users});
+    });
+    // res.render('all-dashboard-cards', {
+    //     data: [
+    //         { name: 'Tarun Jain', image: 'avatar.png', phone: '+917009950116' }, { name: 'Pratham Goyal', image: 'avatar.png', phone: '+919988034040' }
+    //     ]
+    // }
+    // )
 });
 
 app.get("/verification-failed", isLoggedIn, function (req, res) {
-    res.render('all-dashboard-cards', {
-        data: [
-            // {name:'Rajat Mittal',image:'avatar.png',phone:'+919041950023'}
-        ]
-    }
-    )
+    User.find({validated :false, absent: false}, function (err, users) {
+        if (err) 
+        res.render('all-dashboard-cards', {data:[]});
+        else  
+        res.render('all-dashboard-cards', {data:users});
+    });
+    
+    // res.render('all-dashboard-cards', {
+    //     data: [
+    //         // {name:'Rajat Mittal',image:'avatar.png',phone:'+919041950023'}
+    //     ]
+    // }
+    // )
 });
 
 app.get("/absentees", isLoggedIn, function (req, res) {
-    res.render('all-dashboard-cards', {
-        data: [
-            { name: 'Etendra Verma', image: 'avatar.png', phone: '+918601062439' }
-        ]
-    }
-    )
+    User.find({absent: true}, function (err, users) {
+        if (err) 
+        res.render('all-dashboard-cards', {data:[]});
+        else  
+        res.render('all-dashboard-cards', {data:users});
+    });
+
+    // res.render('all-dashboard-cards', {
+    //     data: [
+    //         { name: 'Etendra Verma', image: 'avatar.png', phone: '+918601062439' }
+    //     ]
+    // }
+    // )
 });
 
 
