@@ -150,6 +150,7 @@ app.post("/api/img", async function (req, res) {
     const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor()
     if (detections == undefined || detections.length == 0) {
         presentAndNotValidate(username,"");
+        console.log("500")
         return res.status(500).json({ "result": "error","detection":"face not clear. Try Again" });
     }
     else {
@@ -157,15 +158,18 @@ app.post("/api/img", async function (req, res) {
       const result = faceMatcher.findBestMatch(detections.descriptor)
       if (result.label == "unknown") {
       presentAndNotValidate(username,result.label);
+      console.log("401")
       return res.status(401).json({ "result": "error", "detection": "Someone Else" }); 
       }
       else {
         if(result.label==username){ 
             presentAndValidate(username)
+            console.log("200")
             return res.status(200).json({ "result": "ok", "detection": result.label });
         }
         else {
             presentAndNotValidate(username,result.label); 
+            console.log("403")
             return res.status(403).json({ "result": "error", "detection": "Name not verified" });
         }
       }
@@ -183,6 +187,9 @@ function presentAndValidate(uname){
 //=================StatusChangeAPI================
 
 app.post("/api/statusChange",function(req,res){
+    console.log(req.body)
+    if(req.body.valid==='true') req.body.valid = true
+    else req.body.valid = false
     console.log(typeof(req.body.valid),req.body.valid)
     if(req.body.valid) presentAndValidate(req.body.username);
     else presentAndNotValidate(req.body.username,"");
