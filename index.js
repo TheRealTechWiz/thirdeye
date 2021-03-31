@@ -149,30 +149,30 @@ app.post("/api/img", async function (req, res) {
     // console.log("img",img);
     const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor()
     if (detections == undefined || detections.length == 0) {
-        // presentAndNotValidate(username,"");
+        presentAndNotValidate(username,"");
         return res.status(500).json({ "result": "error","detection":"face not clear. Try Again" });
     }
     else {
         // return res.status(200).json({ "result": "ok", "detection": "face detected" });
       const result = faceMatcher.findBestMatch(detections.descriptor)
       if (result.label == "unknown") {
-    //   presentAndNotValidate(username,result.label);
+      presentAndNotValidate(username,result.label);
       return res.status(401).json({ "result": "error", "detection": "Someone Else" }); 
       }
       else {
         if(result.label==username){ 
-            // presentAndValidate(username)
+            presentAndValidate(username)
             return res.status(200).json({ "result": "ok", "detection": result.label });
         }
         else {
-            // presentAndNotValidate(username,result.label); 
+            presentAndNotValidate(username,result.label); 
             return res.status(403).json({ "result": "error", "detection": "Name not verified" });
         }
       }
     }
 });
-function presentAndNotValidate(uname){
-    console.log("NotValidate","given name:",uname);
+function presentAndNotValidate(uname,detected_name){
+    console.log("NotValidate","given name:",uname, "detected name",detected_name);
     User.findOneAndUpdate({ username:uname}, {absent:false, validated:false},(err,res)=>{if(err)console.log(err)});
 }
 function presentAndValidate(uname){
@@ -185,7 +185,7 @@ function presentAndValidate(uname){
 app.post("/api/statusChange",function(req,res){
     console.log(typeof(req.body.valid),req.body.valid)
     if(req.body.valid) presentAndValidate(req.body.username);
-    else presentAndNotValidate(req.body.username);
+    else presentAndNotValidate(req.body.username,"");
     return res.status(200).json({ "result": "ok"});
 
 });

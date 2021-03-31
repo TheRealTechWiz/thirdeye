@@ -13,13 +13,14 @@ function startInterval(labeledFaceDescriptors) {
 
   const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6)
 
-  const canvas = document.createElement('canvas'); // create a canvas
-  const ctx = canvas.getContext('2d'); // get its context
-  canvas.width = vid.videoWidth; // set its size to the one of the video
-  canvas.height = vid.videoHeight;
-  ctx.drawImage(vid, 0, 0); // the video
-  
   setInterval(async () => {
+    
+    const canvas = document.createElement('canvas'); // create a canvas
+    const ctx = canvas.getContext('2d'); // get its context
+    canvas.width = vid.videoWidth; // set its size to the one of the video
+    canvas.height = vid.videoHeight;
+    ctx.drawImage(vid, 0, 0); // the video
+    
     var image = canvas.toDataURL("image/jpeg");
     const img = await faceapi.fetchImage(image)
     const detections = await faceapi.detectAllFaces(img).withFaceLandmarks().withFaceDescriptors()
@@ -38,7 +39,7 @@ function startInterval(labeledFaceDescriptors) {
     })
 
 
-  }, Math.floor(Math.random() * 15000) + 5000);
+  }, Math.floor(Math.random() * 7000) + 5000);
 }
 
 async function loadLabeledImages() {
