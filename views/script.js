@@ -3,6 +3,7 @@ const btnsave = document.querySelector('#savebtn');
 const vid = document.querySelector('video');
 const namefield = document.querySelector('#name');
 const imageView = document.querySelector('img');
+const textField = document.querySelector('#textField');
 clickImage();
 
 
@@ -10,7 +11,7 @@ function startInterval(labeledFaceDescriptors) {
   btnsave.style.display = "none";
   namefield.style.display = "none";
   imageView.style.display = "none";
-
+  textField.style.display = "block";
   const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6)
 
   setInterval(async () => {
@@ -24,7 +25,11 @@ function startInterval(labeledFaceDescriptors) {
     var image = canvas.toDataURL("image/jpeg");
     const img = await faceapi.fetchImage(image)
     const detections = await faceapi.detectAllFaces(img).withFaceLandmarks().withFaceDescriptors()
-    if (detections.length == 0) { console.log('No one there') }
+    if (detections.length == 0) { 
+      console.log('No one there');
+      textField.textContent = "No one there"; 
+      textField.style.color = "red";
+    }
 
     const displaySize = { width: canvas.width, height: canvas.height }
     const resizedDetections = faceapi.resizeResults(detections, displaySize)
@@ -32,9 +37,13 @@ function startInterval(labeledFaceDescriptors) {
     results.forEach((result, i) => {
       if (result.label == "unknown") {
         console.log('Someone else')
+        textField.textContent = "Someone else";
+        textField.style.color = "red";
       }
       else {
-        console.log('good')
+        console.log('good');
+        textField.textContent = "Good";
+        textField.style.color = "green";
       }
     })
 
@@ -64,7 +73,7 @@ async function loadLabeledImages() {
 // }
 //-------------===========------------------
 function clickImage() {
-
+  textField.style.display = "none";
   imageUpload.style.display = "none";
   navigator.mediaDevices.getUserMedia({ video: true }) // request cam
     .then(stream => {

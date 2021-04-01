@@ -32,12 +32,17 @@
       margin-top: 10px;
       margin-bottom: 10px;
     }
+    #textField{
+      margin-top: 15px;
+      font-size: 32px;
+    }
   </style>
 </head>
 <%- include('partials/title.ejs');-%>
 
   <div class="face-box">
   <video id="video" width="500" height="300" muted autoplay></video>
+  <div id="textField"></div>
   <input type="text" id="name" value="<%=currentUser.username%>" readonly>
   <button id="savebtn">Save image</button>
   <input type="file" id="imageUpload">
