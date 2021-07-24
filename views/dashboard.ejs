@@ -37,6 +37,12 @@
             transform: scale(1.05);
             box-shadow: 0 10px 20px rgba(0, 0, 0, .12), 0 4px 8px rgba(0, 0, 0, .06);
         }
+        #uploadBtn{
+            margin-top: 10vh;
+            position: absolute; 
+            left: 50%; 
+            transform: translate(-50%);
+        }
     </style>
 </head>
 <%- include('partials/title.ejs');-%>
@@ -52,10 +58,10 @@
                 </a>
             </div>
             <div class="col-md-6">
-                <a href="submitted">
+                <a href="verified-students">
                 <div class="card mycard">
                     <div class="card-body">
-                        2. Exam Submitted
+                        2. Verified Students
                     </div>
                 </div>
             </a>
@@ -81,6 +87,7 @@
                 </a>
             </div>
         </div>
+        <button type="button" class="btn btn-primary" id="uploadBtn">Upload Exam</button>
     </div>
 
     <%- include('partials/footer.ejs');-%>

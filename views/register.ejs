@@ -1,14 +1,32 @@
 <%- include('partials/header.ejs');-%>
     <div class="loginbox">
     <img src="avatar.png" class="avatar">
-        <h1>Register</h1>
+        <h1>Register as Student</h1>
         <form method="POST" action="/register">
-            <p>Username</p>
-            <input type="text" name="username" class="text" autocomplete="off" placeholder="Enter Your Rollno." required>
+            <p id="head">Rollno.</p>
+
+            <div class="input-group mb-3" id="student">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="basic-addon1">UE</span>
+                </div>
+                <input id="rollno" type="number" name="username" class="form-control text" autocomplete="off" placeholder="Enter Your Rollno." required>            
+              </div>
+
+              <div id="teacher" style="display: none;">
+                <input type="text" id="username" name="username" class="text" autocomplete="off" placeholder="Enter Your username">
+              </div>
+
             <p>Password</p>
-            <input type="password" name="password" class="text" placeholder="Enter Password" autocomplete="current-password" required>
-            <input type="Submit" name="submit" id="sub" value="Register">
+            <input id="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" type="password" name="password" class="text" title = "Must be at least 8 characters with an uppercase lowercase and number"placeholder="Enter Password" autocomplete="current-password" required>
+            <input type="hidden" name="role" id="role" value="student">
+            <input type="Submit" name="btnSubmit" id="sub" value="Register">
         </form>
+        <a id="change" style="cursor: pointer;">
+            Register as Teacher
+        </a>
     </div>
+  <script src="register.js"></script>
 
 <%- include('partials/footer.ejs');-%>
+
+<!-- //todo make class change placeholder enter your name / rollno. prefix UE text type number  password validation  append ue in user name role in post req-->

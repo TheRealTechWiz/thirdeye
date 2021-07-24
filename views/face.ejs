@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,18 +10,18 @@
   <title>3rd Eye</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
   <style>
-    body{
+    body {
       margin: 0;
       padding: 0;
       width: 100vw;
       height: 100vh;
     }
+
     .face-box {
       margin-top: 15px;
       display: flex;
-      justify-content: center;
       align-items: center;
-      flex-direction: column
+      flex-direction: column;
     }
 
     canvas {
@@ -28,25 +29,45 @@
       top: 0;
       left: 0;
     }
-    input, button, img{
+
+    input,
+    button,
+    img {
       margin-top: 10px;
       margin-bottom: 10px;
     }
-    #textField{
+
+    #textField {
       margin-top: 15px;
       font-size: 32px;
     }
+    .flex-content{
+      display: flex;
+    }
+
+
   </style>
 </head>
 <%- include('partials/title.ejs');-%>
+  <div class="flex-content">
 
-  <div class="face-box">
-  <video id="video" width="500" height="300" muted autoplay></video>
-  <div id="textField"></div>
-  <input type="text" id="name" value="<%=currentUser.username%>" readonly>
-  <button id="savebtn">Save image</button>
-  <input type="file" id="imageUpload">
-  <img src="https://media.sproutsocial.com/uploads/2017/02/10x-featured-social-media-image-size.png" height="100" width="200">
+    <div class="face-box">
+      <video id="video" width="500" height="300" muted autoplay></video>
+      <div id="textField"></div>
+      <input type="text" id="name" value="<%=currentUser.username%>" readonly>
+      <button id="savebtn">Save image</button>
+      <input type="file" id="imageUpload">
+      <img src="https://media.sproutsocial.com/uploads/2017/02/10x-featured-social-media-image-size.png" height="100"
+        width="200">
+    </div>
+
+    <div class="form" id=<%= port %> >
+      <iframe
+        src="https://docs.google.com/forms/d/e/1FAIpQLSdZPT0G3bhosB8q0NcMqXCMUPDFGR9D6RcUWmnB-qTwwb2f4g/viewform?embedded=true"
+        width="840" height="1384" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+    </div>
+
   </div>
-</body>
+  </body>
+
 </html>

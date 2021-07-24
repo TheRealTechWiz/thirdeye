@@ -14,6 +14,7 @@ const faceapi = require('@vladmandic/face-api');
 var canvas = require('canvas');
 const LabeledDescriptions = [];
 let faceMatcher;
+let port;
 
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -71,6 +72,7 @@ var userSchema = new mongoose.Schema({
     username:{ type: String, required: true}, 
     password:{ type: String},
     absent:{type: Boolean, default: true},
+    role:{type: String, default: "student"},
     validated:{type: Boolean, default: true},
     phone:{type: String, default:"+919999999999"}
 });
@@ -97,8 +99,10 @@ app.get("/register", function (req, res) {
     res.render('register');
 });
 
-app.post("/register", function (req, res) {
-    User.register({ username: req.body.username }, req.body.password, function (err, user) {
+app.post("/register", function (req, res) {    
+    if(req.body.role==="student") req.body.username = "UE" + req.body.username[0];
+    else req.body.username = req.body.username[1];
+    User.register({ username: req.body.username, role: req.body.role }, req.body.password, function (err, user) {
         if (err) {
             console.log(err);
             req.flash('error', err.message);
@@ -183,13 +187,22 @@ function presentAndValidate(uname){
     console.log("Validate","given name:",uname)
     User.findOneAndUpdate({username:uname}, {absent:false, validated:true},(err,res)=>{if(err)console.log(err)});
 }
+//make reset function
+function reset(){
+    //moongose model updateMany and update absent to true and validated to false
+    User.updateMany({},{$set:{absent:true, validated:false}},(err,res)=>{if(err)console.log(err)});
+
+}
+
 //==============///FaceRecognitionAPI=============
 //=================StatusChangeAPI================
 
 app.post("/api/statusChange",function(req,res){
     console.log(req.body)
-    if(req.body.valid==='true') req.body.valid = true
-    else req.body.valid = false
+    if(typeof(req.body.valid)==="string"){
+        if(req.body.valid==='true') req.body.valid = true
+        else req.body.valid = false
+}
     console.log(typeof(req.body.valid),req.body.valid)
     if(req.body.valid) presentAndValidate(req.body.username);
     else presentAndNotValidate(req.body.username,"");
@@ -210,34 +223,20 @@ app.post("/api/allUsers", function (req, res) {
 
 //=============///AllUsersAPI=====================
 
-//================UserExistsAPI===================
-
-// app.post("/api/userExists",(req,res)=>{
-//     User.find({username:req.body.username}, function (err, User) {
-//         if (err) { return res.status(403).json({ "result": "error", "error": err.message });}
-//         else { 
-//             if(User.length==0)
-//             return res.status(403).json({ "result": "false", "user": User });
-//             else
-//             return res.status(200).json({ "result": "true", "user": User });
-//         }
-//     });
-// });
-
-//=============///UserExistAPI====================
-app.get("/", isLoggedIn, function (req, res) {
-    res.render('face')
+app.get("/", isLoggedIn, isStudentOrAdmin, function (req, res) {
+    res.render('face', { port: port});
 });
-app.get("/dashboard", isLoggedIn, function (req, res) {
+
+app.get("/dashboard", isLoggedIn, isTeacherOrAdmin, function (req, res) {
     res.render('dashboard')
 });
 
-app.get("/all-students", isLoggedIn, function (req, res) {
-      User.find({}, function (err, users) {
+app.get("/all-students", isLoggedIn, isTeacherOrAdmin, function (req, res) {
+      User.find({role:"student"}, function (err, users) {
         if (err) 
-        res.render('all-dashboard-cards', {data:[]});
+        res.render('all-dashboard-cards', {data:[], title: "All Students"});
         else  
-        res.render('all-dashboard-cards', {data:users});
+        res.render('all-dashboard-cards', {data:users,title: "All Students"});
     });
     // res.render('all-dashboard-cards', {
     //     data: 
@@ -248,12 +247,12 @@ app.get("/all-students", isLoggedIn, function (req, res) {
     // )
 });
 
-app.get("/submitted", isLoggedIn, function (req, res) {
-    User.find({validated :true, absent: false}, function (err, users) {
+app.get("/verified-students", isLoggedIn, isTeacherOrAdmin, function (req, res) {
+    User.find({validated :true, absent: false, role:"student"}, function (err, users) {
         if (err) 
-        res.render('all-dashboard-cards', {data:[]});
+        res.render('all-dashboard-cards', {data:[], title: "Verified Students"});
         else  
-        res.render('all-dashboard-cards', {data:users});
+        res.render('all-dashboard-cards', {data:users, title: "Verified Students"});
     });
     // res.render('all-dashboard-cards', {
     //     data: [
@@ -263,12 +262,12 @@ app.get("/submitted", isLoggedIn, function (req, res) {
     // )
 });
 
-app.get("/verification-failed", isLoggedIn, function (req, res) {
-    User.find({validated :false, absent: false}, function (err, users) {
+app.get("/verification-failed", isLoggedIn, isTeacherOrAdmin, function (req, res) {
+    User.find({validated :false, absent: false, role:"student"}, function (err, users) {
         if (err) 
-        res.render('all-dashboard-cards', {data:[]});
+        res.render('all-dashboard-cards', {data:[], title: "Verification Failed Students"});
         else  
-        res.render('all-dashboard-cards', {data:users});
+        res.render('all-dashboard-cards', {data:users, title: "Verification Failed Students"});
     });
     
     // res.render('all-dashboard-cards', {
@@ -279,12 +278,12 @@ app.get("/verification-failed", isLoggedIn, function (req, res) {
     // )
 });
 
-app.get("/absentees", isLoggedIn, function (req, res) {
-    User.find({absent: true}, function (err, users) {
+app.get("/absentees", isLoggedIn, isTeacherOrAdmin, function (req, res) {
+    User.find({absent: true, role:"student"}, function (err, users) {
         if (err) 
-        res.render('all-dashboard-cards', {data:[]});
+        res.render('all-dashboard-cards', {data:[], title: "Absent Students"});
         else  
-        res.render('all-dashboard-cards', {data:users});
+        res.render('all-dashboard-cards', {data:users, title: "Absent Students"});
     });
 
     // res.render('all-dashboard-cards', {
@@ -293,6 +292,12 @@ app.get("/absentees", isLoggedIn, function (req, res) {
     //     ]
     // }
     // )
+});
+
+//listen to /reset and call reset()
+app.get("/reset", isLoggedIn, function (req, res) {
+    reset();
+    res.redirect("/dashboard");
 });
 
 
@@ -305,7 +310,16 @@ function isLoggedIn(req, res, next) {
     }
 }
 
-let port = process.env.PORT;
+function isTeacherOrAdmin(req, res, next){
+    if(req.user.role==="admin" || req.user.role==="teacher") return next();
+    else res.redirect('/');
+}
+function isStudentOrAdmin(req, res, next){
+    if(req.user.role==="admin" || req.user.role==="student") return next();
+    else res.redirect('/dashboard');
+}
+
+port = process.env.PORT;
 if (port == null || port == "") {
   port = 4000;
 }

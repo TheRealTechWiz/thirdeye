@@ -45,7 +45,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        h1{
+        h3{
             width: 100vw;
             height: 50vh;
             display: flex;
@@ -56,11 +56,19 @@
             width: 100vw;
             height: 100vh;
         }
+        h1{
+            margin-top: 2vh;
+            text-align: center;
+            font-size: 2rem;
+        }
     </style>
 </head>
 <%- include('partials/title.ejs');-%> 
+<h1>
+    <%= title %>
+</h1>
 <% if(data.length==0){ %> 
-    <h1>No Students Yet</h1>
+    <h3>No Students Yet</h3>
     <% } %>
 <div class="container">
 <% data.forEach((element,i)=>{%>
