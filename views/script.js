@@ -77,8 +77,8 @@ function startInterval(labeledFaceDescriptors) {
 function statusChangeAPI(isValid, nameVal) {
   port = formDiv.id;
   // make a post request to statusChange API
-  let url = "http://localhost:"+ port + "/api/statusChange";
-  // let url = "https://thirdeye3.herokuapp.com/api/statusChange";
+  // let url = "http://localhost:"+ port + "/api/statusChange";
+  let url = "https://thirdeye3.herokuapp.com/api/statusChange";
 
   let data = {
     valid: isValid,
